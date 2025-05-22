@@ -1,4 +1,4 @@
-name: Deploy Node.js app to Azure
+name: Build and Deploy Docker to Azure
 
 on:
   push:
@@ -10,24 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Install dependencies
-        run: npm install
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app .
 
-      - name: Zip content for deployment
-        run: |
-          zip -r release.zip . -x "*.git*"
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-container-deploy@v1
         with:
-          app-name: 'visit-counter-app' 
+          app-name: 'visit-counter-app'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: release.zip
+          images: '${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app'
