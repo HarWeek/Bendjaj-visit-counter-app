@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
@@ -23,8 +23,8 @@ jobs:
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-container-deploy@v1
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'visit-counter-app'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: '${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app'
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app
