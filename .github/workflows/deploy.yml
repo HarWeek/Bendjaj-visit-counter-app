@@ -10,24 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: 🔐 Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Set up Docker Buildx
+      - name: ⚙️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: 🛠️ Build Docker image
         run: docker buildx build . -t ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app --load
 
-      - name: Push Docker image to Docker Hub
+      - name: 📤 Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app
 
-      - name: Deploy to Azure Web App
+      - name: 🚀 Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'visit-counter-app'
+          app-name: 'visit-counter-app' # nom exact de l’app dans Azure
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ${{ secrets.DOCKERHUB_USERNAME }}/visit-counter-app
